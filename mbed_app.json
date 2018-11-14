@@ -1,0 +1,89 @@
+{
+    "macros": [
+        "MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig_mbedOS.h\"",
+        "PAL_USER_DEFINED_CONFIGURATION=\"sotp_fs_config_MbedOS.h\"",
+        "MBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
+        "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
+        "PAL_DTLS_PEER_MIN_TIMEOUT=5000",
+        "MBED_CONF_APP_MAIN_STACK_SIZE=5000",
+        "ARM_UC_USE_PAL_BLOCKDEVICE=1",
+        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE",
+        "MBED_CONF_MBED_TRACE_ENABLE=1",
+        "MBEDTLS_DEBUG_C=1"
+    ],
+    "target_overrides": {
+        "*": {
+            "platform.stdio-baud-rate": 115200,
+            "platform.stdio-convert-newlines"   : true,
+            "update-client.storage-address"     : "(1024*1024*64)",
+            "update-client.storage-size"        : "(1024*1024*2)",
+            "update-client.storage-locations"   : "1",
+            "mbed-trace.enable"                 : null,
+            "nsapi.default-wifi-security"       : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"           : "\"WIFI-SSID\"",
+            "nsapi.default-wifi-password"       : "\"PASSWORD\""
+        },
+        "DISCO_L475VG_IOT01A": {
+            "target.network-default-interface-type" : "WIFI",
+            "target.features_add"               : ["STORAGE", "BOOTLOADER"],
+            "target.components_add"             : ["SD"],
+            "sd.SPI_MOSI"                       : "D11",
+            "sd.SPI_MISO"                       : "D12",
+            "sd.SPI_CLK"                        : "D13",
+            "sd.SPI_CS"                         : "D10",
+            "target.app_offset"                 : "0x10400",
+            "target.header_offset"              : "0x10000",
+            "target.bootloader_img"             : "bootloader/mbed-bootloader-L475VG.bin",
+            "sotp-section-1-address"            : "(0x08000000+((1024-4)*1024))",
+            "sotp-section-1-size"               : "(2*1024)",
+            "sotp-section-2-address"            : "(0x08000000+((1024-2)*1024))",
+            "sotp-section-2-size"               : "(2*1024)",
+            "sotp-num-sections"                 : 2,
+            "update-client.application-details" : "(0x08000000+64*1024)",
+            "update-client.bootloader-details"  : "0x080082A0"
+        },
+        "DISCO_F413ZH": {
+            "sotp-section-1-address"            : "(0x08000000+((1536-256)*1024))",
+            "sotp-section-1-size"               : "(128*1024)",
+            "sotp-section-2-address"            : "(0x08000000+((1536-128)*1024))",
+            "sotp-section-2-size"               : "(128*1024)",
+            "sotp-num-sections"                 : 2
+        }
+
+    },
+    "config": {
+        "format-storage-layer-on-error": {
+            "help": "Whether to format the storage layer when it cannot be read - always disable for production devices!",
+            "value": 1
+        },
+        "developer-mode": {
+            "help": "Enable Developer mode to skip Factory enrollment",
+            "value": 1
+        },
+        "sotp-section-1-address": {
+            "help": "Flash sector address for SOTP sector 1",
+            "macro_name": "PAL_INTERNAL_FLASH_SECTION_1_ADDRESS",
+            "value": null
+        },
+        "sotp-section-1-size": {
+            "help": "Flash sector size for SOTP sector 1",
+            "macro_name": "PAL_INTERNAL_FLASH_SECTION_1_SIZE",
+            "value": null
+        },
+        "sotp-section-2-address": {
+            "help": "Flash sector address for SOTP sector 2",
+            "macro_name": "PAL_INTERNAL_FLASH_SECTION_2_ADDRESS",
+            "value": null
+        },
+        "sotp-section-2-size": {
+            "help": "Flash sector size for SOTP sector 2",
+            "macro_name": "PAL_INTERNAL_FLASH_SECTION_2_SIZE",
+            "value": null
+        },
+        "sotp-num-sections": {
+            "help": "Number of SOTP sections",
+            "macro_name": "PAL_INT_FLASH_NUM_SECTIONS",
+            "value": null
+        }
+    }
+}
