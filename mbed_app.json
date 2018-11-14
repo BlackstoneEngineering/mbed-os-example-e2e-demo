@@ -7,21 +7,19 @@
         "PAL_DTLS_PEER_MIN_TIMEOUT=5000",
         "MBED_CONF_APP_MAIN_STACK_SIZE=5000",
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
-        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE",
-        "MBED_CONF_MBED_TRACE_ENABLE=1",
-        "MBEDTLS_DEBUG_C=1"
+        "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
     ],
     "target_overrides": {
         "*": {
             "platform.stdio-baud-rate": 115200,
             "platform.stdio-convert-newlines"   : true,
-            "update-client.storage-address"     : "(1024*1024*64)",
-            "update-client.storage-size"        : "(1024*1024*2)",
+            "update-client.storage-address"     : "(1024*1024*2)",
+            "update-client.storage-size"        : "(1024*1024*4)",
             "update-client.storage-locations"   : "1",
             "mbed-trace.enable"                 : null,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
             "nsapi.default-wifi-ssid"           : "\"WIFI-SSID\"",
-            "nsapi.default-wifi-password"       : "\"PASSWORD\""
+            "nsapi.default-wifi-password"       : "\"WIFI-PASSWORD\""
         },
         "DISCO_L475VG_IOT01A": {
             "target.network-default-interface-type" : "WIFI",

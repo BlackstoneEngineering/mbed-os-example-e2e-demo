@@ -45,7 +45,8 @@ NetworkInterface *net;
 // Default block device
 // BlockDevice* bd = BlockDevice::get_default_instance();
 // FATFileSystem fs("sd", bd);
-QSPIFBlockDevice sd(PE_12, PE_13, PE_14, PE_15,PE_10,PE_11,0,8000000);
+QSPIFBlockDevice bd(PE_12, PE_13, PE_14, PE_15,PE_10,PE_11,0,8000000);
+SlicingBlockDevice sd(&bd,0,(1024*1024*2));
 LittleFileSystem fs("sd");
 // FATFileSystem fs("sd");
 
@@ -172,7 +173,7 @@ void registered(const ConnectorClientEndpointInfo *endpoint) {
 int main(void) {
     printf("Starting Simple Pelion Device Management Client example\n");
 
-    printf("Checking SDCard is Formatted\r\n");
+    printf("Checking Storage is Formatted\r\n");
     int err = fs.mount(&sd);
     printf("%s\n", (err ? "Fail :(" : "OK"));
     if (err) {
@@ -224,7 +225,7 @@ int main(void) {
     printf("Connected to the network successfully. IP address: %s\n", net->get_ip_address());
 
     // SimpleMbedCloudClient handles registering over LwM2M to Pelion DM
-    SimpleMbedCloudClient client(net, &sd, &fs);
+    SimpleMbedCloudClient client(net, &bd, &fs);
     int client_status = client.init();
     if (client_status != 0) {
         printf("Pelion Client initialization failed (%d)\n", client_status);
