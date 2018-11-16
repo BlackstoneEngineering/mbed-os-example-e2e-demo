@@ -24,11 +24,7 @@
         "DISCO_L475VG_IOT01A": {
             "target.network-default-interface-type" : "WIFI",
             "target.features_add"               : ["STORAGE", "BOOTLOADER"],
-            "target.components_add"             : ["SD"],
-            "sd.SPI_MOSI"                       : "D11",
-            "sd.SPI_MISO"                       : "D12",
-            "sd.SPI_CLK"                        : "D13",
-            "sd.SPI_CS"                         : "D10",
+            "target.components_add"             : ["QSPIF"],
             "target.app_offset"                 : "0x10400",
             "target.header_offset"              : "0x10000",
             "target.bootloader_img"             : "bootloader/mbed-bootloader-L475VG.bin",
