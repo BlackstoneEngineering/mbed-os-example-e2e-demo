@@ -36,7 +36,7 @@
 #endif /* ENABLE_SENSORS */
 
 #ifndef ALGO
-    #define ALGO -1
+    #define ALGO 25.0f
 #endif
 #define BUFF_SIZE   200
 char td_buff [BUFF_SIZE];
@@ -76,7 +76,6 @@ void button_press() {
 
 DigitalOut led(LED1);
 Ticker t;
-TreasureData_RESTAPI* td;
 
 void heartbeat(){
     led = !led;
@@ -109,13 +108,19 @@ void update_sensors() {
         }else{
             flag = 0;
         }
+        {
         int x = 0;
         x=sprintf(td_buff,"{\"temp\":%f,\"flag\":%d}",temperature,flag);
             td_buff[x]=0; // null terminate the string
+            TreasureData_RESTAPI* td = new TreasureData_RESTAPI(net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
             td->sendData(td_buff,strlen(td_buff));
+            delete td;
+        }
     } else {
         printf("Error: failed to read temperature.\n");
     }
+
+
 
     // // Humidity sensor
     // float humidity = 0.0;
@@ -128,6 +133,7 @@ void update_sensors() {
 
     // Output an empty line for visibility
     printf("\n");
+    return;
 }
 #endif /* ENABLE_SENSORS */
 
@@ -189,7 +195,7 @@ void registered(const ConnectorClientEndpointInfo *endpoint) {
 
 int main(void) {
     printf("Starting Simple Pelion Device Management Client example\n");
-    printf("Value of TD ALGO is %f\n",ALGO);
+    printf("Value of TD ALGO is %f, %d\n",ALGO,ALGO);
 
     printf("Checking Storage is Formatted\r\n");
     int err = fs.mount(&sd);
@@ -242,7 +248,6 @@ int main(void) {
 
     printf("Connected to the network successfully. IP address: %s\n", net->get_ip_address());
 
-    td  = new TreasureData_RESTAPI(net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
     
     // SimpleMbedCloudClient handles registering over LwM2M to Pelion DM
     SimpleMbedCloudClient client(net, &bd, &fs);
