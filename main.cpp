@@ -24,6 +24,8 @@
 #include "QSPIFBlockDevice.h"
 #define DEVICE_QSPI
 #include "LittleFileSystem.h"
+#include "wifi-ism43362/ISM43362Interface.h"
+#include "treasure-data-rest.h"
 
 #ifdef ENABLE_SENSORS
 #include "VL53L0X.h"
@@ -80,38 +82,38 @@ static DigitalOut shutdown_pin(PC_6);
 static VL53L0X range(&devI2c, &shutdown_pin, PC_7);
 static HTS221Sensor hum_temp(&devI2c);
 
-void update_sensors() {
-    // Distance sensor
-    uint32_t distance;
-    int status = range.get_distance(&distance);
-    if (status == VL53L0X_ERROR_NONE) {
-        distance_res->set_value((int)distance);
-        printf("VL53L0X [mm]:            %6ld\n", distance);
-    } else {
-        printf("VL53L0X [mm]:                --\n");
-    }    
+// void update_sensors() {
+//     // Distance sensor
+//     uint32_t distance;
+//     int status = range.get_distance(&distance);
+//     if (status == VL53L0X_ERROR_NONE) {
+//         distance_res->set_value((int)distance);
+//         printf("VL53L0X [mm]:            %6ld\n", distance);
+//     } else {
+//         printf("VL53L0X [mm]:                --\n");
+//     }    
 
-    // Temperature sensor
-    float temperature = 0.0;
-    if(hum_temp.get_temperature(&temperature) == 0) {
-        printf("Temperature is %f degree.\n", temperature);
-        temperature_res->set_value(temperature);
-    } else {
-        printf("Error: failed to read temperature.\n");
-    }
+//     // Temperature sensor
+//     float temperature = 0.0;
+//     if(hum_temp.get_temperature(&temperature) == 0) {
+//         printf("Temperature is %f degree.\n", temperature);
+//         temperature_res->set_value(temperature);
+//     } else {
+//         printf("Error: failed to read temperature.\n");
+//     }
 
-    // Humidity sensor
-    float humidity = 0.0;
-    if(hum_temp.get_humidity(&humidity) == 0) {
-        printf("Humidity is %f %%.\n", humidity);
-        humidity_res->set_value(humidity);
-    } else {
-        printf("Error: failed to read humidity.\n");
-    }
+//     // Humidity sensor
+//     float humidity = 0.0;
+//     if(hum_temp.get_humidity(&humidity) == 0) {
+//         printf("Humidity is %f %%.\n", humidity);
+//         humidity_res->set_value(humidity);
+//     } else {
+//         printf("Error: failed to read humidity.\n");
+//     }
 
-    // Output an empty line for visibility
-    printf("\n");
-}
+//     // Output an empty line for visibility
+//     printf("\n");
+// }
 #endif /* ENABLE_SENSORS */
 
 /**
@@ -119,48 +121,48 @@ void update_sensors() {
  * @param resource The resource that triggered the callback
  * @param newValue Updated value for the resource
  */
-void pattern_updated(MbedCloudClientResource *resource, m2m::String newValue) {
-    printf("PUT received, new value: %s\n", newValue.c_str());
-}
+// void pattern_updated(MbedCloudClientResource *resource, m2m::String newValue) {
+//     printf("PUT received, new value: %s\n", newValue.c_str());
+// }
 
-/**
- * POST handler
- * @param resource The resource that triggered the callback
- * @param buffer If a body was passed to the POST function, this contains the data.
- *               Note that the buffer is deallocated after leaving this function, so copy it if you need it longer.
- * @param size Size of the body
- */
-void blink_callback(MbedCloudClientResource *resource, const uint8_t *buffer, uint16_t size) {
-    printf("POST received. Going to blink LED pattern: %s\n", pattern_res->get_value().c_str());
+// /**
+//  * POST handler
+//  * @param resource The resource that triggered the callback
+//  * @param buffer If a body was passed to the POST function, this contains the data.
+//  *               Note that the buffer is deallocated after leaving this function, so copy it if you need it longer.
+//  * @param size Size of the body
+//  */
+// void blink_callback(MbedCloudClientResource *resource, const uint8_t *buffer, uint16_t size) {
+//     printf("POST received. Going to blink LED pattern: %s\n", pattern_res->get_value().c_str());
 
-    static DigitalOut augmentedLed(LED1); // LED that is used for blinking the pattern
+//     static DigitalOut augmentedLed(LED1); // LED that is used for blinking the pattern
 
-    // Parse the pattern string, and toggle the LED in that pattern
-    string s = std::string(pattern_res->get_value().c_str());
-    size_t i = 0;
-    size_t pos = s.find(':');
-    while (pos != string::npos) {
-        wait_ms(atoi(s.substr(i, pos - i).c_str()));
-        augmentedLed = !augmentedLed;
+//     // Parse the pattern string, and toggle the LED in that pattern
+//     string s = std::string(pattern_res->get_value().c_str());
+//     size_t i = 0;
+//     size_t pos = s.find(':');
+//     while (pos != string::npos) {
+//         wait_ms(atoi(s.substr(i, pos - i).c_str()));
+//         augmentedLed = !augmentedLed;
 
-        i = ++pos;
-        pos = s.find(':', pos);
+//         i = ++pos;
+//         pos = s.find(':', pos);
 
-        if (pos == string::npos) {
-            wait_ms(atoi(s.substr(i, s.length()).c_str()));
-            augmentedLed = !augmentedLed;
-        }
-    }
-}
+//         if (pos == string::npos) {
+//             wait_ms(atoi(s.substr(i, s.length()).c_str()));
+//             augmentedLed = !augmentedLed;
+//         }
+//     }
+// }
 
 /**
  * Notification callback handler
  * @param resource The resource that triggered the callback
  * @param status The delivery status of the notification
  */
-void button_callback(MbedCloudClientResource *resource, const NoticationDeliveryStatus status) {
-    printf("Button notification, status %s (%d)\n", MbedCloudClientResource::delivery_status_to_string(status), status);
-}
+// void button_callback(MbedCloudClientResource *resource, const NoticationDeliveryStatus status) {
+//     printf("Button notification, status %s (%d)\n", MbedCloudClientResource::delivery_status_to_string(status), status);
+// }
 
 /**
  * Registration callback handler
@@ -204,11 +206,11 @@ int main(void) {
         }
     }
 
-#ifdef ENABLE_SENSORS
-    range.init_sensor(VL53L0X_DEFAULT_ADDRESS);
-    hum_temp.init(NULL);
-    hum_temp.enable();
-#endif /* ENABLE_SENSORS */
+// #ifdef ENABLE_SENSORS
+//     range.init_sensor(VL53L0X_DEFAULT_ADDRESS);
+//     hum_temp.init(NULL);
+//     hum_temp.enable();
+// #endif /* ENABLE_SENSORS */
 
     printf("Connecting to the network using Wifi...\n");
 
@@ -232,38 +234,38 @@ int main(void) {
         return -1;
     }
 
-    // Creating resources, which can be written or read from the cloud
-    button_res = client.create_resource("3200/0/5501", "button_count");
-    button_res->set_value(0);
-    button_res->methods(M2MMethod::GET);
-    button_res->observable(true);
-    button_res->attach_notification_callback(button_callback);
+//     // Creating resources, which can be written or read from the cloud
+//     button_res = client.create_resource("3200/0/5501", "button_count");
+//     button_res->set_value(0);
+//     button_res->methods(M2MMethod::GET);
+//     button_res->observable(true);
+//     button_res->attach_notification_callback(button_callback);
 
-#ifdef ENABLE_SENSORS
-    distance_res = client.create_resource("3330/0/5700", "distance");
-    distance_res->set_value(0);
-    distance_res->methods(M2MMethod::GET);
-    distance_res->observable(true);
+// #ifdef ENABLE_SENSORS
+//     distance_res = client.create_resource("3330/0/5700", "distance");
+//     distance_res->set_value(0);
+//     distance_res->methods(M2MMethod::GET);
+//     distance_res->observable(true);
 
-    temperature_res = client.create_resource("3303/0/5700", "temperature");
-    temperature_res->set_value(0);
-    temperature_res->methods(M2MMethod::GET);
-    temperature_res->observable(true);
+//     temperature_res = client.create_resource("3303/0/5700", "temperature");
+//     temperature_res->set_value(0);
+//     temperature_res->methods(M2MMethod::GET);
+//     temperature_res->observable(true);
 
-    humidity_res = client.create_resource("3304/0/5700", "humidity");
-    humidity_res->set_value(0);
-    humidity_res->methods(M2MMethod::GET);
-    humidity_res->observable(true);
-#endif /* ENABLE_SENSORS */
+//     humidity_res = client.create_resource("3304/0/5700", "humidity");
+//     humidity_res->set_value(0);
+//     humidity_res->methods(M2MMethod::GET);
+//     humidity_res->observable(true);
+// #endif /* ENABLE_SENSORS */
 
-    pattern_res = client.create_resource("3201/0/5853", "blink_pattern");
-    pattern_res->set_value("500:500:500:500:500:500:500:500");
-    pattern_res->methods(M2MMethod::GET | M2MMethod::PUT);
-    pattern_res->attach_put_callback(pattern_updated);
+//     pattern_res = client.create_resource("3201/0/5853", "blink_pattern");
+//     pattern_res->set_value("500:500:500:500:500:500:500:500");
+//     pattern_res->methods(M2MMethod::GET | M2MMethod::PUT);
+//     pattern_res->attach_put_callback(pattern_updated);
 
-    MbedCloudClientResource *blink_res = client.create_resource("3201/0/5850", "blink_action");
-    blink_res->methods(M2MMethod::POST);
-    blink_res->attach_post_callback(blink_callback);
+//     MbedCloudClientResource *blink_res = client.create_resource("3201/0/5850", "blink_action");
+//     blink_res->methods(M2MMethod::POST);
+//     blink_res->attach_post_callback(blink_callback);
 
     printf("Initialized Pelion Client. Registering...\n");
 
@@ -275,13 +277,19 @@ int main(void) {
 
     // Placeholder for callback to update local resource when GET comes.
     // The timer fires on an interrupt context, but debounces it to the eventqueue, so it's safe to do network operations
-    InterruptIn userButton(USER_BUTTON);
-    userButton.fall(eventQueue.event(button_press));
+    // InterruptIn userButton(USER_BUTTON);
+    // userButton.fall(eventQueue.event(button_press));
 
-#ifdef ENABLE_SENSORS
-    Ticker timer;
-    timer.attach(eventQueue.event(update_sensors), 3.0);
-#endif /* ENABLE_SENSORS */
+// #ifdef ENABLE_SENSORS
+//     Ticker timer;
+//     timer.attach(eventQueue.event(update_sensors), 3.0);
+// #endif /* ENABLE_SENSORS */
+
+//////////////////////////////////////
+// Add Tresure Data here
+/////////////////////////////////////
+        TreasureData_RESTAPI* td  = new TreasureData_RESTAPI(&net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
+
 
     // You can easily run the eventQueue in a separate thread if required
     eventQueue.dispatch_forever();
