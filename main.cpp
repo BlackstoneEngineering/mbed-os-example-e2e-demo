@@ -22,13 +22,11 @@
 #include "qspi_api.h"
 #include "QSPI.h"
 #include "QSPIFBlockDevice.h"
-#define DEVICE_QSPI
 #include "LittleFileSystem.h"
 #include "wifi-ism43362/ISM43362Interface.h"
 #include "mbed-os-treasuredata-rest/treasure-data-rest.h"
 
 #ifdef ENABLE_SENSORS
-#include "VL53L0X.h"
 // Workaround for compile error
 // SPI is defined in VL53L0X_i2c_platform.h
 #ifdef SPI
@@ -78,6 +76,8 @@ void button_press() {
 
 DigitalOut led(LED1);
 Ticker t;
+TreasureData_RESTAPI* td;
+
 void heartbeat(){
     led = !led;
 }
@@ -85,7 +85,6 @@ void heartbeat(){
 #ifdef ENABLE_SENSORS
 static DevI2C devI2c(PB_11,PB_10);
 static DigitalOut shutdown_pin(PC_6);
-static VL53L0X range(&devI2c, &shutdown_pin, PC_7);
 static HTS221Sensor hum_temp(&devI2c);
 
 void update_sensors() {
@@ -224,7 +223,7 @@ int main(void) {
     }
 
 #ifdef ENABLE_SENSORS
-    range.init_sensor(VL53L0X_DEFAULT_ADDRESS);
+    // range.init_sensor(VL53L0X_DEFAULT_ADDRESS);
     hum_temp.init(NULL);
     hum_temp.enable();
 #endif /* ENABLE_SENSORS */
@@ -243,6 +242,8 @@ int main(void) {
 
     printf("Connected to the network successfully. IP address: %s\n", net->get_ip_address());
 
+    td  = new TreasureData_RESTAPI(net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
+    
     // SimpleMbedCloudClient handles registering over LwM2M to Pelion DM
     SimpleMbedCloudClient client(net, &bd, &fs);
     int client_status = client.init();
@@ -297,11 +298,11 @@ int main(void) {
     // InterruptIn userButton(USER_BUTTON);
     // userButton.fall(eventQueue.event(button_press));
 
-TreasureData_RESTAPI* td  = new TreasureData_RESTAPI(net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
+
 
 #ifdef ENABLE_SENSORS
     Ticker timer;
-    timer.attach(eventQueue.event(update_sensors), 3.0);
+    timer.attach(eventQueue.event(update_sensors), 10.0);
 #endif /* ENABLE_SENSORS */
 
 
