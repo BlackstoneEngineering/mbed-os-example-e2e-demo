@@ -26,6 +26,8 @@
 #include "wifi-ism43362/ISM43362Interface.h"
 #include "mbed-os-treasuredata-rest/treasure-data-rest.h"
 
+#define ENABLE_SENSORS
+
 #ifdef ENABLE_SENSORS
 // Workaround for compile error
 // SPI is defined in VL53L0X_i2c_platform.h
