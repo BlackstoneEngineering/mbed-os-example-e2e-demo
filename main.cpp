@@ -25,7 +25,7 @@
 #define DEVICE_QSPI
 #include "LittleFileSystem.h"
 #include "wifi-ism43362/ISM43362Interface.h"
-#include "treasure-data-rest.h"
+#include "mbed-os-treasuredata-rest/treasure-data-rest.h"
 
 #ifdef ENABLE_SENSORS
 #include "VL53L0X.h"
@@ -36,6 +36,12 @@
 #endif
 #include "HTS221Sensor.h"
 #endif /* ENABLE_SENSORS */
+
+#ifndef ALGO
+    #define ALGO -1
+#endif
+#define BUFF_SIZE   200
+char td_buff [BUFF_SIZE];
 
 // An event queue is a very useful structure to debounce information between contexts (e.g. ISR and normal threads)
 // This is great because things such as network operations are illegal in ISR, so updating a resource in a button's fall() function is not allowed
@@ -82,38 +88,48 @@ static DigitalOut shutdown_pin(PC_6);
 static VL53L0X range(&devI2c, &shutdown_pin, PC_7);
 static HTS221Sensor hum_temp(&devI2c);
 
-// void update_sensors() {
-//     // Distance sensor
-//     uint32_t distance;
-//     int status = range.get_distance(&distance);
-//     if (status == VL53L0X_ERROR_NONE) {
-//         distance_res->set_value((int)distance);
-//         printf("VL53L0X [mm]:            %6ld\n", distance);
-//     } else {
-//         printf("VL53L0X [mm]:                --\n");
-//     }    
+void update_sensors() {
+    // Distance sensor
+    // uint32_t distance;
+    // int status = range.get_distance(&distance);
+    // if (status == VL53L0X_ERROR_NONE) {
+    //     distance_res->set_value((int)distance);
+    //     printf("VL53L0X [mm]:            %6ld\n", distance);
+    // } else {
+    //     printf("VL53L0X [mm]:                --\n");
+    // }    
 
-//     // Temperature sensor
-//     float temperature = 0.0;
-//     if(hum_temp.get_temperature(&temperature) == 0) {
-//         printf("Temperature is %f degree.\n", temperature);
-//         temperature_res->set_value(temperature);
-//     } else {
-//         printf("Error: failed to read temperature.\n");
-//     }
+    // Temperature sensor
+    float temperature = 0.0;
+    if(hum_temp.get_temperature(&temperature) == 0) {
+        printf("Temperature is %f, Algo is %f, sending to TD.\n", temperature,ALGO);
+        // temperature_res->set_value(temperature);
+        int flag = -1;
+        if(temperature > ALGO){
+            flag = 1;
+        }else{
+            flag = 0;
+        }
+        int x = 0;
+        x=sprintf(td_buff,"{\"temp\":%f,\"flag\":%d}",temperature,flag);
+            td_buff[x]=0; // null terminate the string
+            td->sendData(td_buff,strlen(td_buff));
+    } else {
+        printf("Error: failed to read temperature.\n");
+    }
 
-//     // Humidity sensor
-//     float humidity = 0.0;
-//     if(hum_temp.get_humidity(&humidity) == 0) {
-//         printf("Humidity is %f %%.\n", humidity);
-//         humidity_res->set_value(humidity);
-//     } else {
-//         printf("Error: failed to read humidity.\n");
-//     }
+    // // Humidity sensor
+    // float humidity = 0.0;
+    // if(hum_temp.get_humidity(&humidity) == 0) {
+    //     printf("Humidity is %f %%.\n", humidity);
+    //     humidity_res->set_value(humidity);
+    // } else {
+    //     printf("Error: failed to read humidity.\n");
+    // }
 
-//     // Output an empty line for visibility
-//     printf("\n");
-// }
+    // Output an empty line for visibility
+    printf("\n");
+}
 #endif /* ENABLE_SENSORS */
 
 /**
@@ -174,6 +190,7 @@ void registered(const ConnectorClientEndpointInfo *endpoint) {
 
 int main(void) {
     printf("Starting Simple Pelion Device Management Client example\n");
+    printf("Value of TD ALGO is %f\n",ALGO);
 
     printf("Checking Storage is Formatted\r\n");
     int err = fs.mount(&sd);
@@ -206,11 +223,11 @@ int main(void) {
         }
     }
 
-// #ifdef ENABLE_SENSORS
-//     range.init_sensor(VL53L0X_DEFAULT_ADDRESS);
-//     hum_temp.init(NULL);
-//     hum_temp.enable();
-// #endif /* ENABLE_SENSORS */
+#ifdef ENABLE_SENSORS
+    range.init_sensor(VL53L0X_DEFAULT_ADDRESS);
+    hum_temp.init(NULL);
+    hum_temp.enable();
+#endif /* ENABLE_SENSORS */
 
     printf("Connecting to the network using Wifi...\n");
 
@@ -280,15 +297,12 @@ int main(void) {
     // InterruptIn userButton(USER_BUTTON);
     // userButton.fall(eventQueue.event(button_press));
 
-// #ifdef ENABLE_SENSORS
-//     Ticker timer;
-//     timer.attach(eventQueue.event(update_sensors), 3.0);
-// #endif /* ENABLE_SENSORS */
+TreasureData_RESTAPI* td  = new TreasureData_RESTAPI(net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
 
-//////////////////////////////////////
-// Add Tresure Data here
-/////////////////////////////////////
-        TreasureData_RESTAPI* td  = new TreasureData_RESTAPI(&net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
+#ifdef ENABLE_SENSORS
+    Ticker timer;
+    timer.attach(eventQueue.event(update_sensors), 3.0);
+#endif /* ENABLE_SENSORS */
 
 
     // You can easily run the eventQueue in a separate thread if required
