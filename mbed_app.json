@@ -19,9 +19,7 @@
             "mbed-trace.enable"                 : null,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
             "nsapi.default-wifi-ssid"           : "\"WIFI-SSID\"",
-            "nsapi.default-wifi-password"       : "\"WIFI-PASSWORD\"",
-            "td-api-key"                           : "\"TreasureDataAPIKEY\""
-        }
+            "nsapi.default-wifi-password"       : "\"WIFI-PASSWORD\""
         },
         "DISCO_L475VG_IOT01A": {
             "target.network-default-interface-type" : "WIFI",
@@ -80,6 +78,10 @@
             "help": "Number of SOTP sections",
             "macro_name": "PAL_INT_FLASH_NUM_SECTIONS",
             "value": null
+        },
+        "api-key":{
+            "help":  "REST API Key for Treasure Data",
+            "value": "\"CHANGEME\""
         }
     }
 }
