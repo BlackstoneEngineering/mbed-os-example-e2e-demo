@@ -79,7 +79,7 @@
             "macro_name": "PAL_INT_FLASH_NUM_SECTIONS",
             "value": null
         },
-        "api-key":{
+        "td-api-key":{
             "help":  "REST API Key for Treasure Data",
             "value": "\"CHANGEME\""
         }
