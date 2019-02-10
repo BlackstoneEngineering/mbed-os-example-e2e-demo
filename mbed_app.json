@@ -5,7 +5,7 @@
         "MBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
         "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
         "PAL_DTLS_PEER_MIN_TIMEOUT=5000",
-        "MBED_CONF_APP_MAIN_STACK_SIZE=7000",
+        "MBED_CONF_APP_MAIN_STACK_SIZE=9000",
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
         "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
     ],
@@ -18,8 +18,8 @@
             "update-client.storage-locations"   : "1",
             "mbed-trace.enable"                 : null,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
-            "nsapi.default-wifi-ssid"           : "\"WIFI-SSID\"",
-            "nsapi.default-wifi-password"       : "\"WIFI-PASSWORD\""
+            "nsapi.default-wifi-ssid"           : "\"casa-de-awesome-guest\"",
+            "nsapi.default-wifi-password"       : "\"you are awesome\""
         },
         "DISCO_L475VG_IOT01A": {
             "target.network-default-interface-type" : "WIFI",
@@ -37,11 +37,19 @@
             "update-client.bootloader-details"  : "0x080082A0"
         },
         "DISCO_F413ZH": {
+            "target.network-default-interface-type" : "WIFI",
+            "target.features_add"               : ["STORAGE", "BOOTLOADER"],
+            "target.components_add"             : ["QSPIF"],
+            "target.app_offset"                 : "0x10400",
+            "target.header_offset"              : "0x10000",
+            "target.bootloader_img"             : "bootloader/mbed-bootloader-F413H.bin",
             "sotp-section-1-address"            : "(0x08000000+((1536-256)*1024))",
             "sotp-section-1-size"               : "(128*1024)",
             "sotp-section-2-address"            : "(0x08000000+((1536-128)*1024))",
             "sotp-section-2-size"               : "(128*1024)",
-            "sotp-num-sections"                 : 2
+            "sotp-num-sections"                 : 2,
+            "update-client.application-details" : "(0x08000000+64*1024)",
+            "update-client.bootloader-details"  : "0x08008C64"
         }
 
     },

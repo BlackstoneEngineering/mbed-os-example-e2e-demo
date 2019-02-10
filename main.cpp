@@ -18,15 +18,17 @@
 #ifndef MBED_TEST_MODE
 #include "mbed.h"
 #include "simple-mbed-cloud-client.h"
-#include "FATFileSystem.h"
+// #include "FATFileSystem.h"
 #include "qspi_api.h"
 #include "QSPI.h"
 #include "QSPIFBlockDevice.h"
 #include "LittleFileSystem.h"
 #include "wifi-ism43362/ISM43362Interface.h"
 #include "mbed-os-treasuredata-rest/treasure-data-rest.h"
+#include "models/lr_model.hpp"
+#include "models/iris_model.hpp"
 
-#define ENABLE_SENSORS
+// #define ENABLE_SENSORS
 
 #ifdef ENABLE_SENSORS
 // Workaround for compile error
@@ -40,12 +42,15 @@
 #ifndef ALGO
     #define ALGO 25.0f
 #endif
+
 #define BUFF_SIZE   200
 char td_buff [BUFF_SIZE];
+#define MBED_CONF_APP_TD_API_KEY "10389/599f0416d91cfba4fe1d950e3497e01be258efec"
 
 // An event queue is a very useful structure to debounce information between contexts (e.g. ISR and normal threads)
 // This is great because things such as network operations are illegal in ISR, so updating a resource in a button's fall() function is not allowed
 EventQueue eventQueue;
+Thread thread1;
 
 // Default network interface object
 NetworkInterface *net;
@@ -53,18 +58,18 @@ NetworkInterface *net;
 // Default block device
 // BlockDevice* bd = BlockDevice::get_default_instance();
 // FATFileSystem fs("sd", bd);
-QSPIFBlockDevice bd(PE_12, PE_13, PE_14, PE_15,PE_10,PE_11,0,8000000);
+QSPIFBlockDevice bd(QSPI_FLASH1_IO0, QSPI_FLASH1_IO1, QSPI_FLASH1_IO2, QSPI_FLASH1_IO3,QSPI_FLASH1_SCK,QSPI_FLASH1_CSN,0,8000000);
 SlicingBlockDevice sd(&bd,0,(1024*1024*2));
 LittleFileSystem fs("sd");
 // FATFileSystem fs("sd");
 
 // Declaring pointers for access to Pelion Client resources outside of main()
 MbedCloudClientResource *button_res;
-MbedCloudClientResource *pattern_res;
+// MbedCloudClientResource *pattern_res;
 #ifdef ENABLE_SENSORS
-MbedCloudClientResource *distance_res;
-MbedCloudClientResource *temperature_res;
-MbedCloudClientResource *humidity_res;
+// MbedCloudClientResource *distance_res;
+// MbedCloudClientResource *temperature_res;
+// MbedCloudClientResource *humidity_res;
 #endif /* ENABLE_SENSORS */
 
 // This function gets triggered by the timer. It's easy to replace it by an InterruptIn and fall() mode on a real button
@@ -83,12 +88,60 @@ void heartbeat(){
     led = !led;
 }
 
+void run_ml(){
+    printf("Starting run_ml()\r\n");
+
+    Tensor* data = new RamTensor<float>();
+    std::vector<uint32_t> input_shape({1, 1 * 4});
+    data->init(input_shape);
+    //buff.copyTo(tmp);
+    float* data_ptr = (float*) data->write<float>(0, 0);
+    data_ptr[0] = 7.0;
+    data_ptr[1] = 3.2;
+    data_ptr[2] = 4.7;
+    data_ptr[3] = 1.4;
+    
+    Context ctx;
+    get_iris_model_ctx(ctx, data);
+    ctx.eval();
+    S_TENSOR prediction = ctx.get({"y_pred:0"});
+    printf("Call iris model!!!.\n");
+    int result = *(prediction->read<int>(0,0));
+    //float result = *(prediction->read<float>(0,0));
+    printf("Result is here!!!.\n");
+    printf("result: %d\n", result);
+    
+    Tensor* data_lr = new RamTensor<float>();
+    std::vector<uint32_t> input_shape_lr({1, 1 * 2});
+    data_lr->init(input_shape_lr);
+    //buff.copyTo(tmp);
+    float* data_ptr_lr = (float*) data_lr->write<float>(0, 0);
+    data_ptr_lr[0] = 3.0;
+    data_ptr_lr[1] = 2.0;
+    
+    Context ctx_lr;
+    get_lr_model_ctx(ctx_lr, data_lr);
+    ctx_lr.eval();
+    S_TENSOR prediction_lr = ctx_lr.get({"y_pred:0"});
+    printf("Call lr model!!!.\n");
+    float result_lr = *(prediction_lr->read<float>(0,0));
+    printf("Result is here!!!.\n");
+    printf("result: %f\n", result_lr);
+
+    // delete data;
+    return;
+}
+
 #ifdef ENABLE_SENSORS
 static DevI2C devI2c(PB_11,PB_10);
 static DigitalOut shutdown_pin(PC_6);
 static HTS221Sensor hum_temp(&devI2c);
 
+
+
 void update_sensors() {
+        printf("\r\nStarting Update Sensors\r\n");
+
     // Distance sensor
     // uint32_t distance;
     // int status = range.get_distance(&distance);
@@ -138,6 +191,26 @@ void update_sensors() {
     return;
 }
 #endif /* ENABLE_SENSORS */
+
+#ifndef ENABLE_SENSORS
+void update_sensors() {
+    printf("\r\nStarting Update Sensors\r\n");
+
+    float temperature = 0;
+    int flag = 0;
+    {
+    int x = 0;
+    x=sprintf(td_buff,"{\"temp\":%f,\"flag\":%d}",temperature,flag);
+        td_buff[x]=0; // null terminate the string
+        TreasureData_RESTAPI* td = new TreasureData_RESTAPI(net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
+        td->sendData(td_buff,strlen(td_buff));
+        delete td;
+    }
+
+
+}
+
+#endif
 
 /**
  * PUT handler
@@ -192,7 +265,7 @@ void update_sensors() {
  * @param endpoint Information about the registered endpoint such as the name (so you can find it back in portal)
  */
 void registered(const ConnectorClientEndpointInfo *endpoint) {
-    printf("Connected to Pelion Device Management. Endpoint Name: %s\n", endpoint->internal_endpoint_name.c_str());
+    printf("***** \r\n *** Connected to Pelion Device Management. Endpoint Name: %s\r\n***\n", endpoint->internal_endpoint_name.c_str());
 }
 
 int main(void) {
@@ -308,12 +381,19 @@ int main(void) {
 
 
 #ifdef ENABLE_SENSORS
-    Ticker timer;
-    timer.attach(eventQueue.event(update_sensors), 10.0);
+    Ticker timer1;
+    Ticker timer2;
+    // timer1.attach(eventQueue.event(update_sensors), 20.0);
+    timer2.attach(eventQueue.event(run_ml), 33.0);
 #endif /* ENABLE_SENSORS */
 
 
     // You can easily run the eventQueue in a separate thread if required
-    eventQueue.dispatch_forever();
+    // eventQueue.dispatch_forever();
+    thread1.start(callback(&eventQueue, &EventQueue::dispatch_forever));
+
+    while(1){
+        wait_ms(100);
+    }
 }
 #endif
