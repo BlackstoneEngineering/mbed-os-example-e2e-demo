@@ -288,11 +288,12 @@ int main(void) {
     }
 
     // start heartbeat
-    t.attach(heartbeat,1);
+    // t.attach(heartbeat,0.2);
+    t.attach(heartbeat,2);
 
 
     // If the USER button is pushed at launch, format the SD card.
-    const int PUSHED = 0;
+    const int PUSHED = 1;
     DigitalIn *user_button = new DigitalIn(USER_BUTTON);
     if(user_button->read() == PUSHED) {
         printf("USER button is pushed. Formatting the storage...\n");
@@ -380,12 +381,12 @@ int main(void) {
 
 
 
-#ifdef ENABLE_SENSORS
+// #ifdef ENABLE_SENSORS
     Ticker timer1;
     Ticker timer2;
     // timer1.attach(eventQueue.event(update_sensors), 20.0);
-    timer2.attach(eventQueue.event(run_ml), 33.0);
-#endif /* ENABLE_SENSORS */
+    // timer2.attach(eventQueue.event(run_ml), 33.0);
+// #endif  ENABLE_SENSORS 
 
 
     // You can easily run the eventQueue in a separate thread if required
