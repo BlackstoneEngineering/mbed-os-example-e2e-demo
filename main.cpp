@@ -30,6 +30,10 @@
 
 // #define ENABLE_SENSORS
 
+static void arg(){
+    printf("ARG!!!\r\n");
+}
+
 #ifdef ENABLE_SENSORS
 // Workaround for compile error
 // SPI is defined in VL53L0X_i2c_platform.h
@@ -51,6 +55,9 @@ char td_buff [BUFF_SIZE];
 // This is great because things such as network operations are illegal in ISR, so updating a resource in a button's fall() function is not allowed
 EventQueue eventQueue;
 Thread thread1;
+
+Ticker timer1;
+Ticker timer2;
 
 // Default network interface object
 NetworkInterface *net;
@@ -268,6 +275,112 @@ void registered(const ConnectorClientEndpointInfo *endpoint) {
     printf("***** \r\n *** Connected to Pelion Device Management. Endpoint Name: %s\r\n***\n", endpoint->internal_endpoint_name.c_str());
 }
 
+
+// void update_authorize(int32_t request)
+// {
+//     switch (request)
+//     {
+//         /* Cloud Client wishes to download new firmware. This can have a negative
+//            impact on the performance of the rest of the system.
+
+//            The user application is supposed to pause performance sensitive tasks
+//            before authorizing the download.
+
+//            Note: the authorization call can be postponed and called later.
+//            This doesn't affect the performance of the Cloud Client.
+//         */
+//         case MbedCloudClient::UpdateRequestDownload:
+//             printf("Firmware download requested\r\n");
+//             printf("Authorization granted\r\n");
+//             thread1.terminate();
+//             printf("Stopping thread1....\r\n")
+//             _client->update_authorize(MbedCloudClient::UpdateRequestDownload);
+//             break;
+
+//         /* Cloud Client wishes to reboot and apply the new firmware.
+
+//            The user application is supposed to save all current work before rebooting.
+
+//            Note: the authorization call can be postponed and called later.
+//            This doesn't affect the performance of the Cloud Client.
+//         */
+//         case MbedCloudClient::UpdateRequestInstall:
+//             printf("Firmware install requested\r\n");
+//             printf("Authorization granted\r\n");
+//             _client->update_authorize(MbedCloudClient::UpdateRequestInstall);
+//             break;
+
+//         default:
+//             printf("Error - unknown request\r\n");
+//             break;
+//     }
+// }
+
+// void update_authorize(int32_t request){
+
+//     switch (request)
+//     {
+//         /* Cloud Client wishes to download new firmware. This can have a negative
+//            impact on the performance of the rest of the system.
+
+//            The user application is supposed to pause performance sensitive tasks
+//            before authorizing the download.
+
+//            Note: the authorization call can be postponed and called later.
+//            This doesn't affect the performance of the Cloud Client.
+//         */
+//         case MbedCloudClient::UpdateRequestDownload:
+//             printf("Firmware download requested\r\n");
+//             printf("Authorization granted\r\n");
+//             _client->update_authorize(MbedCloudClient::UpdateRequestDownload);
+//             break;
+
+//         /* Cloud Client wishes to reboot and apply the new firmware.
+
+//            The user application is supposed to save all current work before rebooting.
+
+//            Note: the authorization call can be postponed and called later.
+//            This doesn't affect the performance of the Cloud Client.
+//         */
+//         case MbedCloudClient::UpdateRequestInstall:
+//             printf("Firmware install requested\r\n");
+//             printf("Authorization granted\r\n");
+//             _client->update_authorize(MbedCloudClient::UpdateRequestInstall);
+//             break;
+
+//         default:
+//             printf("Error - unknown request\r\n");
+//             break;
+//     }
+// }
+
+uint32_t dl_last_rpercent = 0;
+bool dl_started = false;
+Timer dl_timer;
+void update_progress(uint32_t progress, uint32_t total) {
+    printf(". %d\r\n",progress);
+    // if (!dl_started) {
+    //     dl_started = true;
+    //     dl_timer.start();
+    //     pc.printf("[INFO] Firmware download started. Size: %.2fKB\r\n", float(total) / 1024);
+    // } else {
+    //     float speed = float(progress) / dl_timer.read();
+    //     float percent = float(progress) * 100 / float(total);
+    //     uint32_t time_left = (total - progress) / speed;
+    //     printf("[INFO] Downloading: %.2f%% (%.2fKB/s, ETA: %02d:%02d:%02d)\r\n", percent, speed / 1024,
+    //         time_left / 3600, (time_left / 60) % 60, time_left % 60);
+    // }
+
+    // if (progress == total) {
+    //     dl_timer.stop();
+    //     dl_started = false;
+    //     printf("[INFO] Firmware download completed. %.2fKB in %.2f seconds (%.2fKB/s)\r\n",
+    //         float(total) / 1024, dl_timer.read(), float(total) / dl_timer.read() / 1024);
+
+    // }
+    thread1.terminate();
+}
+
 int main(void) {
     printf("Starting Simple Pelion Device Management Client example\n");
     printf("Value of TD ALGO is %f, %d\n",ALGO,ALGO);
@@ -382,10 +495,9 @@ int main(void) {
 
 
 // #ifdef ENABLE_SENSORS
-    Ticker timer1;
-    Ticker timer2;
-    // timer1.attach(eventQueue.event(update_sensors), 20.0);
-    // timer2.attach(eventQueue.event(run_ml), 33.0);
+
+    timer1.attach(eventQueue.event(update_sensors), 20.0);
+    timer2.attach(eventQueue.event(run_ml), 15.0);
 // #endif  ENABLE_SENSORS 
 
 
