@@ -6,7 +6,7 @@
 
 Your code should now be running on the device. Make sure to note your Pelion Endpoint ID that is printed out to the terminal
 1. Change the speed of the heartbeat function `t.attach(heartbeat,0.2);`
-1. Issue an update ` mbed dm update device -D 0168e01408b300000000000xxxxxxx -m DISCO_F413ZH --profile=uTensor/build_profile/release.json  -vv `
+1. Issue an update ` mbed dm update device -D 0168e01408b300000000000xxxxxxx -m DISCO_F413ZH --profile=uTensor/build_profile/release.json  -vv ` You will need to replace the string after `-D` with the device ID of the board you want to update. 
 Now you should be able to see the update be issued to the board, then the board reboot and run the new image. I suggest changing the heartbeat speed to have a visual indicator. 
 
 
