@@ -260,6 +260,73 @@ void update_sensors() {
 //     printf("Button notification, status %s (%d)\n", MbedCloudClientResource::delivery_status_to_string(status), status);
 // }
 
+void update_progress(uint32_t progress, uint32_t total)
+{
+    uint8_t percent = progress * 100 / total;
+    thread1.terminate();
+    printf("%d,",percent);
+    fflush(stdout);
+// /* only show progress bar if debug trace is disabled */
+// #if (!defined(MBED_CONF_MBED_TRACE_ENABLE) || MBED_CONF_MBED_TRACE_ENABLE == 0) \
+//     && !ARM_UC_ALL_TRACE_ENABLE \
+//     && !ARM_UC_HUB_TRACE_ENABLE
+
+//     printf("\rDownloading: [");
+//     for (uint8_t index = 0; index < 50; index++)
+//     {
+//         if (index < percent / 2)
+//         {
+//             printf("+");
+//         }
+//         else if (index == percent / 2)
+//         {
+//             static uint8_t old_max = 0;
+//             static uint8_t counter = 0;
+
+//             if (index == old_max)
+//             {
+//                 counter++;
+//             }
+//             else
+//             {
+//                 old_max = index;
+//                 counter = 0;
+//             }
+
+//             switch (counter % 4)
+//             {
+//                 case 0:
+//                     printf("/");
+//                     break;
+//                 case 1:
+//                     printf("-");
+//                     break;
+//                 case 2:
+//                     printf("\\");
+//                     break;
+//                 case 3:
+//                 default:
+//                     printf("|");
+//                     break;
+//             }
+//         }
+//         else
+//         {
+//             printf(" ");
+//         }
+//     }
+//     printf("] %d %%", percent);
+//     fflush(stdout);
+// #else
+//     printf("Downloading: %d %%\r\n", percent);
+// #endif
+
+//     if (progress == total)
+//     {
+//         printf("\r\nDownload completed\r\n");
+//     }
+}
+
 /**
  * Registration callback handler
  * @param endpoint Information about the registered endpoint such as the name (so you can find it back in portal)
@@ -267,7 +334,6 @@ void update_sensors() {
 void registered(const ConnectorClientEndpointInfo *endpoint) {
     printf("***** \r\n *** Connected to Pelion Device Management. Endpoint Name: %s\r\n***\n", endpoint->internal_endpoint_name.c_str());
     thread1.start(callback(&eventQueue, &EventQueue::dispatch_forever));
-
 }
 
 int main(void) {
@@ -290,8 +356,8 @@ int main(void) {
     }
 
     // start heartbeat
-    // t.attach(heartbeat,0.2);
-    t.attach(heartbeat,2);
+    t.attach(heartbeat,0.2);
+    // t.attach(heartbeat,2);
 
 
     // If the USER button is pushed at launch, format the SD card.

@@ -16,10 +16,10 @@
             "update-client.storage-address"     : "(1024*1024*2)",
             "update-client.storage-size"        : "(1024*1024*4)",
             "update-client.storage-locations"   : "1",
-            "mbed-trace.enable"                 : true,
+            "mbed-trace.enable"                 : null,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
-            "nsapi.default-wifi-ssid"           : "\"casa-de-awesome-guest\"",
-            "nsapi.default-wifi-password"       : "\"you are awesome\""
+            "nsapi.default-wifi-ssid"           : "\"SSID\"",
+            "nsapi.default-wifi-password"       : "\"PASSWORD\""
         },
         "DISCO_L475VG_IOT01A": {
             "target.network-default-interface-type" : "WIFI",
