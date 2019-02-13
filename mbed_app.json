@@ -5,7 +5,7 @@
         "MBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
         "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
         "PAL_DTLS_PEER_MIN_TIMEOUT=5000",
-        "MBED_CONF_APP_MAIN_STACK_SIZE=7000",
+        "MBED_CONF_APP_MAIN_STACK_SIZE=9000",
         "ARM_UC_USE_PAL_BLOCKDEVICE=1",
         "MBED_CLOUD_CLIENT_UPDATE_STORAGE=ARM_UCP_FLASHIAP_BLOCKDEVICE"
     ],
@@ -16,7 +16,7 @@
             "update-client.storage-address"     : "(1024*1024*2)",
             "update-client.storage-size"        : "(1024*1024*4)",
             "update-client.storage-locations"   : "1",
-            "mbed-trace.enable"                 : null,
+            "mbed-trace.enable"                 : true,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
             "nsapi.default-wifi-ssid"           : "\"casa-de-awesome-guest\"",
             "nsapi.default-wifi-password"       : "\"you are awesome\""
@@ -49,7 +49,7 @@
             "sotp-section-2-size"               : "(2*1024)",
             "sotp-num-sections"                 : 2,
             "update-client.application-details" : "(0x08000000+64*1024)",
-            "update-client.bootloader-details"  : "0x080087EC"
+            "update-client.bootloader-details"  : "0x08008858"
         }
 
     },

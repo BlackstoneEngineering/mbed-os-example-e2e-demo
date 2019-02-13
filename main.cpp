@@ -266,6 +266,8 @@ void update_sensors() {
  */
 void registered(const ConnectorClientEndpointInfo *endpoint) {
     printf("***** \r\n *** Connected to Pelion Device Management. Endpoint Name: %s\r\n***\n", endpoint->internal_endpoint_name.c_str());
+    thread1.start(callback(&eventQueue, &EventQueue::dispatch_forever));
+
 }
 
 int main(void) {
@@ -326,7 +328,7 @@ int main(void) {
 
     
     // SimpleMbedCloudClient handles registering over LwM2M to Pelion DM
-    SimpleMbedCloudClient client(net, &bd, &fs);
+    SimpleMbedCloudClient client(net, &sd, &fs);
     int client_status = client.init();
     if (client_status != 0) {
         printf("Pelion Client initialization failed (%d)\n", client_status);
@@ -384,14 +386,14 @@ int main(void) {
 // #ifdef ENABLE_SENSORS
     Ticker timer1;
     Ticker timer2;
-    // timer1.attach(eventQueue.event(update_sensors), 20.0);
-    // timer2.attach(eventQueue.event(run_ml), 33.0);
+    timer1.attach(eventQueue.event(update_sensors), 20.0);
+    timer2.attach(eventQueue.event(run_ml), 33.0);
 // #endif  ENABLE_SENSORS 
 
 
     // You can easily run the eventQueue in a separate thread if required
     // eventQueue.dispatch_forever();
-    thread1.start(callback(&eventQueue, &EventQueue::dispatch_forever));
+    // thread1.start(callback(&eventQueue, &EventQueue::dispatch_forever));
 
     while(1){
         wait_ms(100);
