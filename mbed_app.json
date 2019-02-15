@@ -18,8 +18,8 @@
             "update-client.storage-locations"   : "1",
             "mbed-trace.enable"                 : null,
             "nsapi.default-wifi-security"       : "WPA_WPA2",
-            "nsapi.default-wifi-ssid"           : "\"mbedEnabled\"",
-            "nsapi.default-wifi-password"       : "\"validation\""
+            "nsapi.default-wifi-ssid"           : "\"SSID\"",
+            "nsapi.default-wifi-password"       : "\"PASSWORD\""
         },
         "NUCLEO_F429ZI": {
             "target.features_add"               : ["BOOTLOADER"],
@@ -169,7 +169,7 @@
             "value": 1
         },
         "main-stack-size": {
-            "value": 6000
+            "value": 12000
         },
         "flash-start-address": {
             "help": "Start address of internal flash. Only used in this config to help the definition of other macros.",
