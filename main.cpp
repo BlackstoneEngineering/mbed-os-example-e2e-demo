@@ -76,7 +76,7 @@ static const ConnectorClientEndpointInfo* endpointInfo;
 
 #define BUFF_SIZE   200
 char td_buff [BUFF_SIZE];
-#define MBED_CONF_APP_TD_API_KEY "10389/599f0416d91cfba4fe1d950e3497e01be258efec"
+#define MBED_CONF_APP_TD_API_KEY "10389/884c908183247a6946204a4585312a5cbcd8f2a6"
 
 
 /**
@@ -164,6 +164,10 @@ void sensors_update() {
 
 }
 
+void heartbeat(){
+    led = !led;
+}
+
 void run_ml(){
     printf("Starting run_ml()\r\n");
 
@@ -227,6 +231,12 @@ void update_progress(uint32_t progress, uint32_t total)
 
 int main(void) {
     printf("\nStarting Simple Pelion Device Management Client example\n");
+
+    Ticker t;
+    
+    // start heartbeat
+    // t.attach(heartbeat,0.2);
+    t.attach(heartbeat,2);
 
     // If the User button is pressed ons start, then format storage.
     DigitalIn *user_button = new DigitalIn(BUTTON1);
