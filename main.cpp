@@ -76,8 +76,6 @@ static const ConnectorClientEndpointInfo* endpointInfo;
 
 #define BUFF_SIZE   200
 char td_buff [BUFF_SIZE];
-#define MBED_CONF_APP_TD_API_KEY "10389/884c908183247a6946204a4585312a5cbcd8f2a6"
-
 
 /**
  * PUT handler

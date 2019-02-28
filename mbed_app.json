@@ -6,7 +6,7 @@
         "MBED_CLOUD_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
         "PAL_USER_DEFINED_CONFIGURATION=\"sotp_fs_config_MbedOS.h\"",
         "PAL_FS_MOUNT_POINT_PRIMARY=\"/fs\"",
-        "MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig_mbedOS.h\"",
+        "MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig.h\"",
         "PAL_DTLS_PEER_MIN_TIMEOUT=5000"
     ],
     "target_overrides": {
@@ -160,6 +160,10 @@
         }
     },
     "config": {
+        "td-api-key":{
+            "help":"Treasure Data Write Only API Key",
+            "value":"\"REPLACE WITH YOUR TD WRITE ONLY API KEY\""
+        },
         "format-storage-layer-on-error": {
             "help": "Whether to format the storage layer when it cannot be read - always disable for production devices!",
             "value": 1
