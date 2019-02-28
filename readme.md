@@ -1,7 +1,7 @@
 ## What is this? 
 This program is a demonstration of how to take sensor readings on an Mbed OS board, then send those readings to Treasure Data and accept firmware updates using the Pelion Update Service. It is designed to be used in conjuntion with this repo: https://github.com/ARMmbed/E2E-demo 
 
-##How to use
+## How to use
 
 ### Initial Program
 1. Import the code `mbed import git@github.com:BlackstoneEngineering/mbed-os-example-e2e-demo.git`
