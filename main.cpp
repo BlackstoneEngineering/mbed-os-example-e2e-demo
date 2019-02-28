@@ -155,7 +155,7 @@ void sensors_update() {
     int x = 0;
     x=sprintf(td_buff,"{\"temp\":%f,\"flag\":%d}",temp,flag);
         td_buff[x]=0; // null terminate the string
-        TreasureData_RESTAPI* td = new TreasureData_RESTAPI(net,"test_database","test_table", MBED_CONF_APP_TD_API_KEY);
+        TreasureData_RESTAPI* td = new TreasureData_RESTAPI(net,"test_database","temp_table", MBED_CONF_APP_TD_API_KEY);
         td->sendData(td_buff,strlen(td_buff));
         delete td;
     }
@@ -351,6 +351,7 @@ int main(void) {
     while(1){
         printf(".");
         fflush(stdout);
+        wait(5);
     }
 
 }
